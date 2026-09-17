@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planting Mission - Petani Cerdas</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#e8f5e9,#e3f2fd);color:#17324d}
+.container{max-width:850px;margin:auto;padding:22px}.card{background:white;border-radius:24px;padding:28px;box-shadow:0 12px 35px #0002}
+h1{margin:0 0 8px;font-size:clamp(28px,7vw,48px)}h2{margin-top:8px}.sub{color:#587080}
+button{border:0;border-radius:14px;padding:14px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.start{background:#176b3a;color:white;width:100%;margin-top:18px}.option{display:block;width:100%;text-align:left;background:#f4f7f8;margin:10px 0;border:2px solid transparent}.option:hover{border-color:#176b3a}.option.correct{background:#d8f5df;border-color:#2e9b52}.option.wrong{background:#ffe0e0;border-color:#d33}.disabled{pointer-events:none}.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:700}.bar{height:12px;background:#e5e7eb;border-radius:20px;overflow:hidden;margin:15px 0 24px}.fill{height:100%;background:#176b3a;width:0%;transition:.3s}.feedback{padding:14px;border-radius:14px;margin-top:15px;font-weight:700}.next{background:#176b3a;color:white;margin-top:14px;width:100%}.hidden{display:none}.badge{font-size:56px}.score{font-size:44px;font-weight:800;color:#176b3a}.small{font-size:14px;color:#667}.level{background:#eaf6ee;padding:7px 12px;border-radius:20px;display:inline-block;font-weight:700}
+</style>
+</head>
+<body>
+<div class="container"><div class="card" id="app"></div></div>
+<script>
+const qs=[
+["Pemilihan & Persiapan Benih","Benih jagung memiliki daya kecambah 80%. Tindakan paling tepat adalah ...",["Langsung ditanam","Menambah pupuk","Memilih benih dengan daya kecambah lebih tinggi","Mempersempit jarak tanam"],2],
+["Pemilihan & Persiapan Benih","Ciri benih unggul yang paling penting adalah ...",["Berwarna paling cerah","Bernas, sehat, dan memiliki daya kecambah tinggi","Berukuran sangat besar","Berharga mahal"],1],
+["Pemilihan & Persiapan Benih","Sebagian benih terserang jamur. Apa yang sebaiknya dilakukan?",["Mencampurnya dengan benih sehat","Menjemurnya lalu dicampur","Memisahkan benih yang rusak","Menambah pupuk"],2],
+["Pemilihan & Persiapan Benih","Tujuan pengujian daya kecambah adalah ...",["Menentukan warna benih","Mengetahui kemampuan benih tumbuh","Menentukan harga benih","Mengukur tinggi tanaman"],1],
+["Pemilihan & Persiapan Benih","Benih dengan daya kecambah ≥85% menunjukkan ...",["Benih tidak dapat tumbuh","Sebagian besar benih berpotensi berkecambah dengan baik","Benih pasti bebas OPT","Tanaman pasti menghasilkan panen tinggi"],1],
+["Persiapan Lahan & Sarpras","Tanah terlalu padat sebelum penanaman. Tindakan yang tepat adalah ...",["Membiarkannya","Mengolah tanah agar struktur lebih gembur","Menambah benih","Mempersempit jarak tanam"],1],
+["Persiapan Lahan & Sarpras","Salah satu tujuan pengolahan lahan adalah ...",["Menghambat akar","Memperbaiki kondisi tanah untuk pertumbuhan akar","Mengurangi air seluruhnya","Membuat tanah keras"],1],
+["Persiapan Lahan & Sarpras","Sebelum membuat lubang tanam, petani perlu menentukan ...",["Warna daun","Jarak tanam","Warna bunga","Umur panen tanaman lain"],1],
+["Persiapan Lahan & Sarpras","Lahan memiliki banyak gulma. Langkah awal yang tepat adalah ...",["Melakukan pengendalian gulma","Menambah benih","Menutup seluruh lahan","Mengurangi cahaya"],0],
+["Persiapan Lahan & Sarpras","Alat yang dapat digunakan untuk membuat lubang tanam secara manual adalah ...",["Cangkul/tugal sesuai kebutuhan tanaman","Termometer","Drone","pH meter saja"],0],
+["Teknik Pelaksanaan Penanaman","Urutan yang tepat adalah ...",["Penanaman → persiapan lahan → benih → penyiraman","Penyiapan benih → persiapan lahan → penentuan jarak tanam → penanaman → penyiraman","Penyiraman → panen → penanaman","Panen → benih → lahan"],1],
+["Teknik Pelaksanaan Penanaman","Tanaman ditanam terlalu rapat. Dampak yang mungkin terjadi adalah ...",["Kompetisi antartanaman meningkat","Semua tanaman pasti lebih subur","Gulma pasti hilang","Kebutuhan cahaya menjadi nol"],0],
+["Teknik Pelaksanaan Penanaman","Pada sistem jajar legowo, pengaturan barisan bertujuan untuk ...",["Menghilangkan tanaman","Mengatur populasi dan memanfaatkan ruang/cahaya lebih efektif","Membuat tanaman tanpa air","Mengurangi kebutuhan benih menjadi nol"],1],
+["Teknik Pelaksanaan Penanaman","Benih ditanam terlalu dalam. Salah satu risikonya adalah ...",["Bibit kesulitan muncul ke permukaan","Tanaman langsung berbuah","Akar tidak terbentuk","Tanaman tidak membutuhkan air"],0],
+["Teknik Pelaksanaan Penanaman","Pada lahan kering, pengelolaan air perlu diperhatikan agar ...",["Air tersedia sesuai kebutuhan tanaman","Semua air dibuang","Tanah selalu tergenang","Tanaman tidak mendapat air"],0],
+["Teknik Pelaksanaan Penanaman","Setelah benih ditanam, penyiraman dilakukan dengan ...",["Air secukupnya dan tidak merusak posisi benih","Air sebanyak mungkin","Tidak pernah menyiram","Air yang sangat panas"],0],
+["Teknik Pelaksanaan Penanaman","Jika terdapat lubang tanam yang tidak tumbuh tanaman, tindakan yang tepat adalah ...",["Penyulaman","Pemangkasan","Panen","Pengeringan"],0],
+["Teknologi Modern","Drone dalam budidaya tanaman dapat digunakan terutama untuk ...",["Pemantauan kondisi lahan/tanaman dari udara","Menggantikan semua pekerja","Mengubah benih menjadi pupuk","Menghilangkan tanah"],0],
+["Teknologi Modern","Sensor kelembapan tanah membantu petani menentukan ...",["Kapan tanaman membutuhkan air","Warna bunga","Harga hasil panen","Jenis gulma secara otomatis dalam semua kondisi"],0],
+["Teknologi Modern","Sistem irigasi tetes bekerja dengan cara ...",["Menyalurkan air secara terkontrol ke area perakaran","Membanjiri seluruh lahan","Menyemprotkan air ke udara terus-menerus","Menghilangkan air dari tanah"],0],
+["Teknologi Modern","SIG dalam pertanian dapat digunakan untuk ...",["Mengolah dan menganalisis informasi berdasarkan lokasi/geografis","Mengganti benih","Memotong tanaman","Membuat pupuk secara otomatis"],0],
+["Teknologi Modern","Teknologi pertanian presisi membantu petani ...",["Mengelola input berdasarkan kondisi dan kebutuhan spesifik lahan/tanaman","Menggunakan input sebanyak mungkin","Menghindari pengamatan tanaman","Menanam tanpa perencanaan"],0],
+["Pemeliharaan & Penyulaman","Penyulaman dilakukan pada tanaman yang ...",["Tidak tumbuh atau mati setelah penanaman","Sudah siap panen","Menghasilkan buah banyak","Tumbuh normal"],0],
+["Pemeliharaan & Penyulaman","Bibit untuk penyulaman sebaiknya ...",["Sehat dan memiliki pertumbuhan relatif seragam","Paling kecil","Terserang penyakit","Layu"],0],
+["Pemeliharaan & Penyulaman","Tanaman pangan menunjukkan pertumbuhan tidak seragam. Hal yang perlu diperiksa adalah ...",["Kondisi benih, air, tanah, dan teknik penanaman","Warna pagar","Bentuk alat pertanian","Warna pakaian petani"],0],
+["Pemeliharaan & Penyulaman","Gulma perlu dikendalikan karena ...",["Berkompetisi dengan tanaman dalam memperoleh sumber daya","Selalu meningkatkan hasil panen","Selalu menghasilkan pupuk","Menggantikan tanaman utama"],0],
+["Pemeliharaan & Penyulaman","Pemantauan tanaman menggunakan drone dapat membantu menemukan ...",["Bagian lahan yang menunjukkan kondisi tanaman berbeda","Nama pemilik lahan secara otomatis","Harga pupuk","Umur petani"],0],
+["FINAL MISSION","Jarak tanam jagung terlalu rapat dan tanaman tumbuh kurus serta tidak seragam. Analisis paling tepat adalah ...",["Jarak tanam dapat menyebabkan kompetisi antartanaman sehingga perlu dievaluasi","Benih harus ditanam lebih dalam","Tanaman harus selalu digenangi","Semua tanaman harus dipanen"],0],
+["FINAL MISSION","Sebagian tanaman padi mati, sedangkan tanaman lain normal. Petani ingin mempertahankan populasi. Tindakan tepat adalah ...",["Membiarkan lubang kosong","Melakukan penyulaman menggunakan bibit sehat dan sesuai pertumbuhan","Mengurangi semua tanaman","Menghentikan pemeliharaan"],1],
+["FINAL MISSION","Lahan cukup lembap, beberapa tanaman tidak tumbuh, gulma mulai muncul, dan tersedia drone serta sensor kelembapan. Strategi tepat adalah ...",["Menanam ulang seluruh lahan tanpa pemeriksaan","Melakukan pemantauan, penyulaman, pengendalian gulma, dan memanfaatkan sensor/drone sesuai kebutuhan","Menambah pupuk sebanyak-banyaknya","Membiarkan tanaman sampai panen"],1]
+];
+let i=0,score=0,answered=false;
+const app=document.getElementById("app");
+function start(){i=0;score=0;showQ()}
+function showQ(){
+ answered=false;
+ const q=qs[i];
+ const correctIndex=Number(q[4]);
+ const pct=(i/qs.length)*100;
+
+ app.innerHTML=`<div class="top"><span>🌾 Planting Mission</span><span>👤 ${studentName} • Skor: ${score}</span></div>
+ <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+ <span class="level">${q[0]}</span><p class="small">Pertanyaan ${i+1} dari ${qs.length}</p>
+ <h2>${q[1]}</h2><div id="opts"></div><div id="fb"></div>`;
+
+ const opts=document.getElementById("opts");
+ q[2].forEach((text,n)=>{
+   const btn=document.createElement("button");
+   btn.type="button";
+   btn.className="option";
+   btn.textContent=`${String.fromCharCode(65+n)}. ${text}`;
+   btn.addEventListener("click",()=>checkAnswer(n));
+   opts.appendChild(btn);
+ });
+}
+
+function checkAnswer(selectedIndex){
+ if(answered)return;
+ answered=true;
+
+ const q=qs[i];
+ const correctIndex=Number(q[4]);
+ const buttons=[...document.querySelectorAll("#opts .option")];
+
+ buttons.forEach((button,index)=>{
+   button.classList.add("disabled");
+   if(index===correctIndex) button.classList.add("correct");
+   if(index===selectedIndex && selectedIndex!==correctIndex) button.classList.add("wrong");
+ });
+
+ const fb=document.getElementById("fb");
+
+ if(selectedIndex===correctIndex){
+   score+=10;
+   fb.innerHTML='<div class="feedback" style="background:#e4f7e8">✅ Benar! +10 poin</div>';
+ }else{
+   fb.innerHTML='<div class="feedback" style="background:#fff0f0">❌ Belum tepat. Jawaban benar ditandai hijau.</div>';
+ }
+
+ const next=document.createElement("button");
+ next.type="button";
+ next.className="next";
+ next.textContent=i<qs.length-1 ? "➡️ Tantangan Berikutnya" : "🏆 Lihat Hasil";
+ next.addEventListener("click", i<qs.length-1 ? nextQ : finish);
+ fb.appendChild(next);
+}
+
+function nextQ(){
+ i++;
+ showQ();
+}
+
+function finish(){
+ let title=score>=240?"🏆 MASTER PLANTING ATPH":score>=180?"🌾 PETANI CERDAS":score>=100?"🌿 PETANI TERAMPIL":"🌱 PETANI PEMULA";
+ let nilai=Math.round((score/300)*100);
+ app.innerHTML=`<div style="text-align:center">
+ <div class="badge">🏆</div>
+ <h1>Misi Selesai!</h1>
+ <p style="font-size:20px"><b>👤 ${studentName}</b></p>
+ <p class="small">Kelas: ${classCode}</p>
+ <p class="score">${nilai}</p>
+ <p><b>Nilai Akhir (0–100)</b></p>
+ <h2>${title}</h2>
+ <p>Skor permainan: <b>${score}/300</b></p>
+ <p>Kamu telah menyelesaikan ${qs.length} tantangan Teknik Penanaman Tanaman Pangan.</p>
+ <div style="background:#eef7f0;border-radius:14px;padding:14px;margin:18px 0;text-align:left">
+ <b>📋 Hasil:</b><br>Nama: ${studentName}<br>Kelas: ${classCode}<br>Nilai Akhir: ${nilai}
+ </div>
+ <button class="start" onclick="start()">🔄 Main Lagi</button>
+ </div>`;
+}
+let studentName="", classCode="";
+const KODE_KELAS="ATPHXI2026";
+
+function login(){
+  const name=document.getElementById("studentName").value.trim();
+  const code=document.getElementById("classCode").value.trim().toUpperCase();
+  const err=document.getElementById("loginError");
+  if(!name){err.textContent="⚠️ Silakan masukkan nama siswa.";return;}
+  if(code!==KODE_KELAS){err.textContent="❌ Kode kelas salah. Masukkan kode yang diberikan guru.";return;}
+  studentName=name; classCode=code; start();
+}
+
+app.innerHTML=`<div style="text-align:center">
+<div class="badge">🌾</div>
+<h1>Planting Mission</h1>
+<h2>Petani Cerdas — XI ATPH</h2>
+<p class="sub">Selesaikan ${qs.length} tantangan Teknik Penanaman Tanaman Pangan dan kumpulkan nilai terbaikmu!</p>
+<div style="text-align:left;margin-top:20px">
+<label><b>👤 Nama Siswa</b></label>
+<input id="studentName" type="text" placeholder="Masukkan nama lengkap" style="width:100%;padding:14px;border:2px solid #d9e2e7;border-radius:12px;font-size:16px;margin:8px 0 14px">
+<label><b>🔐 Kode Kelas</b></label>
+<input id="classCode" type="text" placeholder="Masukkan kode dari guru" style="width:100%;padding:14px;border:2px solid #d9e2e7;border-radius:12px;font-size:16px;margin:8px 0">
+<div id="loginError" style="color:#c62828;font-weight:700;min-height:24px"></div>
+</div>
+<p>🎯 ${qs.length} soal &nbsp; • &nbsp; ⭐ 10 poin/jawaban benar</p>
+<button class="start" onclick="login()">🚀 MULAI MISI</button>
+<p class="small" style="margin-top:16px">Kode kelas diberikan oleh guru.</p>
+</div>`;
+</script>
+</body>
+</html>
